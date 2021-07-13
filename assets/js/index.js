@@ -1,14 +1,44 @@
+const OPEN_WEATHER_API_KEY = "f32f339d5eda5e2a9a10c88456f2c076";
 
 
 
 
+function setupSearchHandlers() {
 
+    // Handle seaching by clicking button
+    $(`#searchButton`).on("click", () => {
+        getWeatherData($(`#searchInput`).val());
+    });
 
+    // Handle searching by clicking enter
+    $(`#searchInput`).keypress((event) => {
 
+        // If user pressed enter while on the form
+        if (event.which == 13) {
+            getWeatherData($(`#searchInput`).val());
+        }
+    })
+}
 
+function getWeatherData(city) {
+    var searchURI = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${OPEN_WEATHER_API_KEY}`;
+
+    fetch(searchURI)
+        .then(response => response.json())
+        .then(data => console.log(data));
+    
+}
+
+function loadLastSearchedCity() {
+    return;
+}
+
+// Retrieve previous searches terms from localstorage and return them
 function getSearchHistory() {
     var searchHistory = JSON.parse(localStorage.getItem("seaches"));
 
+    // If there is no array (first time accessing website)
+    // then create and save a new empty array
     if (!searchHistory) {
         searchHistory = ["Chapel Hill", "Carrboro", "Hillsborough"];
         localStorage.setItem("searches", JSON.stringify(searchHistory));
@@ -18,6 +48,8 @@ function getSearchHistory() {
     }
 }
 
+// Load previous searches and render buttons elements 
+// on the homepage to search for those locations again
 function loadPreviousSearches() {
 
     // Retrieve the most recent past searches
@@ -32,7 +64,7 @@ function loadPreviousSearches() {
 
         // Append search buttons to container
         $(`#previouslySearchedCitiesContainer`).append(searchButtonEl);
-  
+
     });
 }
 
@@ -40,8 +72,15 @@ function loadPreviousSearches() {
 // Do any initialization and setup
 function init() {
 
-    // Load previous searches and render buttons to search for those locations again
+    // 1. Load previous searches and render buttons to search for those locations again
     loadPreviousSearches();
+
+    // 2. Load the most recently searched city to the results screen as default
+    loadLastSearchedCity();
+
+    // 3. Set up event handlers for searching for a city
+    setupSearchHandlers();
+
 }
 
 // Start 'er up
