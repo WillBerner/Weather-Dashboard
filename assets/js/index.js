@@ -20,12 +20,39 @@ function setupSearchHandlers() {
     })
 }
 
-function getWeatherData(city) {
-    var searchURI = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${OPEN_WEATHER_API_KEY}`;
+async function getWeatherData(city) {
+    var searchURI = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${OPEN_WEATHER_API_KEY}&units=imperial`;
 
-    fetch(searchURI)
+    var result = await fetch(searchURI)
         .then(response => response.json())
-        .then(data => console.log(data));
+        .then(data => {
+            return data;
+        });
+
+    var latLong = {
+        latitude: result.coord.lat,
+        longitude: result.coord.lon
+    }
+
+    var oneCallURI = `https://api.openweathermap.org/data/2.5/onecall?lat=${latLong.latitude}&lon=${latLong.longitude}&appid=${OPEN_WEATHER_API_KEY}`
+
+    var oneCall = await fetch(oneCallURI)
+        .then(response => response.json())
+        .then(data => {
+            return data;
+        })
+
+    console.log(oneCall);
+    var date = new Date(oneCall.current.dt * 1000);
+
+    var dateString = `(${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()})`;
+
+    $(`#cityName`).text(`${result.name} ${dateString}`);
+
+    $(`#temperature`).text(`Temp: ${result.main.temp} F`);
+    $(`#wind`).text(`Wind: ${result.wind.speed} MPH`);
+    $(`#humidity`).text(`Humidity: ${result.main.humidity} %`);
+    $(`#UVIndex`).text(`UV Index: ${oneCall.current.uvi}`)
     
 }
 
