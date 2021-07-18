@@ -23,27 +23,36 @@ async function renderWeather(cityName) {
     $(`#humidity`).text(`Humidity: ${forecast.current.humidity} %`);
     $(`#UVIndex`).text(`UV Index: ${forecast.current.uvi}`);
 
+    setUVIndexColor(forecast.current.uvi);
+
+    console.log(forecast);
+
     // Render forecast cards for the next 5 days
     for (var i = 0; i < 5; i++) {
 
         // Grab each card div to insert data into
         var upcomingWeatherDateEl = $(`#todayPlus${i + 1}`);
-
+        
         // Create date element
-        var date = new Date(forecast.daily[i].dt * 1000);
+        var date = new Date(forecast.daily[i + 1].dt * 1000);
         var dateStringEl = $(`<h5/>`).text(`(${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()})`);
 
+        // Render icon
+        var iconEl = $(`<i class="bi bi-cloud"></i>`);
+        iconEl.addClass("my-3");
+
         // Create temperature element
-        var dateTempEl = $(`<p/>`).text(`Temp: ${forecast.daily[i].temp.day} F`)
+        var dateTempEl = $(`<p/>`).text(`Temp: ${forecast.daily[i + 1].temp.day} F`)
 
         // Create wind speed element
-        var dateWindEl = $(`<p/>`).text(`Wind: ${forecast.daily[i].wind_speed} MPH`)
+        var dateWindEl = $(`<p/>`).text(`Wind: ${forecast.daily[i + 1].wind_speed} MPH`)
 
         // Create humidity element
-        var dateHumidityEl = $(`<p/>`).text(`Humidity: ${forecast.daily[i].humidity} %`)
+        var dateHumidityEl = $(`<p/>`).text(`Humidity: ${forecast.daily[i + 1].humidity} %`)
 
         // Append each new element to the html
         upcomingWeatherDateEl.append(dateStringEl);
+        upcomingWeatherDateEl.append(iconEl);
         upcomingWeatherDateEl.append(dateTempEl);
         upcomingWeatherDateEl.append(dateWindEl);
         upcomingWeatherDateEl.append(dateHumidityEl);
@@ -80,6 +89,21 @@ function setupSearchHandlers() {
         }
 
     })
+}
+
+function setUVIndexColor(UVIndex) {
+
+    $(`#UVIndex`).removeClass();
+    $(`#UVIndex`).addClass("p-1 border rounded rounded-4");
+    
+    if (UVIndex < 3) {
+        $(`#UVIndex`).addClass("bg-success");
+    } else if (UVIndex >= 3 || UVIndex < 7) {
+        $(`#UVIndex`).addClass("bg-warning")
+    } else {
+        $(`#UVIndex`).addClass("bg-failure")
+    }
+    
 }
 
 async function getWeatherData(city) {
@@ -137,7 +161,9 @@ function getSearchHistory() {
     // If there is no array (first time accessing website)
     // then create and save a new empty array
     if (!searchHistory) {
-        searchHistory = ["Chapel Hill", "Carrboro", "Hillsborough"];
+
+        // Defaults to Chapel Hill if the user hasn't searched anything yet
+        searchHistory = ["Chapel Hill"];
         localStorage.setItem("searches", JSON.stringify(searchHistory));
         return searchHistory;
     } else {
@@ -162,7 +188,14 @@ function loadPreviousSearches() {
 
             // Create each search button dynamically from retrieved data
             searchButtonEl = $("<button></button>").text(searchHistory[i]);
+            searchButtonEl.attr("id", searchHistory[i]);
             searchButtonEl.addClass("btn btn-secondary w-100 my-1");
+            
+            // Create clickh handlers for each button to search a term again
+            searchButtonEl.on("click", (event) => {
+                saveSearchTerm(event.target.id);
+                renderWeather(event.target.id);
+            });
 
             // Append search buttons to container
             $(`#previouslySearchedCitiesContainer`).append(searchButtonEl);
