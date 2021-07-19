@@ -25,21 +25,28 @@ async function renderWeather(cityName) {
 
     setUVIndexColor(forecast.current.uvi);
 
-    console.log(forecast);
-
     // Render forecast cards for the next 5 days
     for (var i = 0; i < 5; i++) {
 
         // Grab each card div to insert data into
         var upcomingWeatherDateEl = $(`#todayPlus${i + 1}`);
-        
+
         // Create date element
         var date = new Date(forecast.daily[i + 1].dt * 1000);
         var dateStringEl = $(`<h5/>`).text(`(${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()})`);
 
         // Render icon
-        var iconEl = $(`<i class="bi bi-cloud"></i>`);
+        var iconCode = forecast.daily[i].weather[0].icon;
+        var iconurl = `http://openweathermap.org/img/w/${iconCode}.png`;
+
+        // Create icon element
+        var iconEl = $(`<img/>`);
         iconEl.addClass("my-3");
+        iconEl.attr("src", iconurl);
+
+        // Create a container for the icon
+        var iconContainer = $("<div />");
+        iconContainer.append(iconEl);
 
         // Create temperature element
         var dateTempEl = $(`<p/>`).text(`Temp: ${forecast.daily[i + 1].temp.day} F`)
@@ -52,7 +59,7 @@ async function renderWeather(cityName) {
 
         // Append each new element to the html
         upcomingWeatherDateEl.append(dateStringEl);
-        upcomingWeatherDateEl.append(iconEl);
+        upcomingWeatherDateEl.append(iconContainer);
         upcomingWeatherDateEl.append(dateTempEl);
         upcomingWeatherDateEl.append(dateWindEl);
         upcomingWeatherDateEl.append(dateHumidityEl);
@@ -95,7 +102,7 @@ function setUVIndexColor(UVIndex) {
 
     $(`#UVIndex`).removeClass();
     $(`#UVIndex`).addClass("p-1 border rounded rounded-4");
-    
+
     if (UVIndex < 3) {
         $(`#UVIndex`).addClass("bg-success");
     } else if (UVIndex >= 3 || UVIndex < 7) {
@@ -103,7 +110,7 @@ function setUVIndexColor(UVIndex) {
     } else {
         $(`#UVIndex`).addClass("bg-failure")
     }
-    
+
 }
 
 async function getWeatherData(city) {
@@ -132,7 +139,18 @@ async function getWeatherData(city) {
 
     var dateString = `(${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()})`;
 
-    $(`#cityName`).text(`${result.name} ${dateString}`);
+    // Render icon
+    var iconCode = result.weather[0].icon;
+    var iconurl = `http://openweathermap.org/img/w/${iconCode}.png`;
+
+    // Create icon element
+    var iconEl = $(`<img/>`);
+    iconEl.addClass("my-3");
+    iconEl.attr("src", iconurl);
+
+    var titleEl = $(`<h3 id="cityName" class="card-title py-2">`).text(`${result.name} ${dateString}`);
+    $(`#cityName`).append(titleEl);
+    $(`#cityName`).append(iconEl);
 
     return oneCall;
 
@@ -190,7 +208,7 @@ function loadPreviousSearches() {
             searchButtonEl = $("<button></button>").text(searchHistory[i]);
             searchButtonEl.attr("id", searchHistory[i]);
             searchButtonEl.addClass("btn btn-secondary w-100 my-1");
-            
+
             // Create clickh handlers for each button to search a term again
             searchButtonEl.on("click", (event) => {
                 saveSearchTerm(event.target.id);
