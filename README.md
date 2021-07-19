@@ -7,3 +7,9 @@ Users are presented with a dashboad to view the current weather as well as a fiv
 A live link to the application can be found here:
 
 https://willberner.github.io/Weather-Dashboard/
+
+Some images of the application:
+
+<img width="1336" alt="example" src="https://user-images.githubusercontent.com/25047954/126219583-c8a103da-0890-4c89-9ec5-c84ef80a3967.png">
+
+<img width="1336" alt="example2" src="https://user-images.githubusercontent.com/25047954/126219589-72b68195-99ff-494b-abd7-662f1d9a0879.png">
