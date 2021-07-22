@@ -1,5 +1,7 @@
 const OPEN_WEATHER_API_KEY = "f32f339d5eda5e2a9a10c88456f2c076";
 
+console.log(process.env.OpenWeatherApiKey);
+
 // Clears out weather cards to be repopulated with content
 function clearWeather() {
 
